@@ -1,0 +1,6 @@
+.bruno
+data
+node_modules
+.env
+README.md
+dist

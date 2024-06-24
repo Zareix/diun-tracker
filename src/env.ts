@@ -1,0 +1,16 @@
+import { createEnv } from '@t3-oss/env-core';
+import { z } from 'zod';
+
+export const env = createEnv({
+  server: {
+    PORT: z
+      .string()
+      .default('3000')
+      .transform((val) => parseInt(val, 10)),
+    DATABASE_URL: z.string(),
+  },
+  runtimeEnv: {
+    DATABASE_URL: process.env['DATABASE_URL'],
+    PORT: process.env['PORT'],
+  },
+});
