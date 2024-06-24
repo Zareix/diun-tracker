@@ -8,6 +8,7 @@ export const Layout = (props: PropsWithChildren<{ title: string }>) => {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/diun.png" />
         <title>${props.title}</title>
         ${(
 					<Style>{css`
