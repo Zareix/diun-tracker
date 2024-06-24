@@ -17,6 +17,7 @@ FROM oven/bun:1.1.8-slim
 WORKDIR /app
 
 COPY --from=builder /app/dist .
+COPY --from=builder /app/drizzle ./drizzle
 COPY package.json bun.lockb ./
 RUN bun install 
 
