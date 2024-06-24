@@ -1,15 +1,16 @@
-import { Style, css } from 'hono/css';
-import { html } from 'hono/html';
+import { Style, css } from "hono/css";
+import { html } from "hono/html";
+import type { PropsWithChildren } from "hono/jsx";
 
-export const Layout = (props: { title: string; children?: any }) => {
-  return html`<!DOCTYPE html>
+export const Layout = (props: PropsWithChildren<{ title: string }>) => {
+	return html`<!DOCTYPE html>
     <html>
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>${props.title}</title>
         ${(
-          <Style>{css`
+					<Style>{css`
             html {
               font-family: Arial, Helvetica, sans-serif;
             }
@@ -53,7 +54,7 @@ export const Layout = (props: { title: string; children?: any }) => {
               background-color: #f2f2f2;
             }
           `}</Style>
-        )}
+				)}
       </head>
       <body style="padding: 1em 2em">
         ${props.children}
