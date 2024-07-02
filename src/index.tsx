@@ -10,10 +10,12 @@ const app = new Hono();
 
 app
 	.get("/api/updates", async (c) => {
+		const filter = c.req.query("filter");
 		const allUpdates = await db.query.tableUpdates.findMany({
 			with: {
 				metadata: true,
 			},
+			where: filter === "pending" || filter === "done" ? eq(tableUpdates.status, filter) : undefined,
 		});
 		return c.json(allUpdates);
 	})
@@ -39,6 +41,21 @@ app
 		} = await c.req.json<DiunWebhookBody>();
 
 		const update: UpdatesRow = await db.transaction(async (trx) => {
+			const [{updates: currentUpdate}] = await trx
+				.select()
+				.from(tableUpdates)
+				.leftJoin(tableMetadata,eq(tableMetadata.updateId, tableUpdates.id))
+				.where(
+					and(
+						eq(tableUpdates.hostname, hostname), 
+						eq(tableUpdates.status, "pending"),
+						eq(tableMetadata.ctnNames, ctn_names),
+					))
+				.orderBy(desc(tableUpdates.id))
+				.limit(1)
+			if (currentUpdate) {
+				return currentUpdate
+			}
 			const [insertedUpdate] = await trx
 				.insert(tableUpdates)
 				.values({

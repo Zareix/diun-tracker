@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/updates
+  url: {{baseUrl}}/api/updates?filter=pending
   body: none
   auth: none
+}
+
+query {
+  filter: pending
 }

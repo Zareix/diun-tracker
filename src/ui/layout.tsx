@@ -24,13 +24,21 @@ export const Layout = (props: PropsWithChildren<{ title: string }>) => {
               cursor: pointer;
             }
 
+            button:hover {
+              background-color: rgb(0 0 0 / 0.8);
+            }
+
             header {
               display: flex;
               justify-content: space-between;
               align-items: center;
             }
 
-            h1 {
+            :not(body) >  header {
+              margin-top: 1.5rem;
+            }
+
+            h1,h2 {
               margin: 0;
             }
 
@@ -51,6 +59,10 @@ export const Layout = (props: PropsWithChildren<{ title: string }>) => {
               padding: 8px;
             }
 
+            td.actions {
+              text-align: center;
+            }
+
             tr:nth-child(even) {
               background-color: #f2f2f2;
             }
@@ -58,6 +70,7 @@ export const Layout = (props: PropsWithChildren<{ title: string }>) => {
 				)}
       </head>
       <body style="padding: 1em 2em">
+        <div id="root"></div>
         ${props.children}
       </body>
     </html>`;

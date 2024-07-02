@@ -1,3 +1,4 @@
+import { html } from "hono/html";
 import type { MetadataRow, UpdatesRow } from "~/db/schema";
 import { Layout } from "~/ui/layout";
 
@@ -11,7 +12,8 @@ type Props = {
 };
 
 const DashboardPage = ({ updates, showAll }: Props) => {
-	const hostnames = [...new Set(updates.map((update) => update.hostname))];
+	const hostnames = [...new Set(updates.map((update) => update.hostname))].sort();
+
 
 	return (
 		<Layout title="Dashboard">
@@ -30,9 +32,19 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 				<div key={hostname}>
 					<header>
 						<h2>{hostname}</h2>
-						<form action={`/dashboard?hostname=${hostname}`} method="POST">
-							<button type="submit">Set all as done</button>
-						</form>
+						<div>
+							<form action={`/dashboard?hostname=${hostname}`} method="POST">
+								<button type="submit">✅ Set all as done</button>
+							</form>
+							<button id={`${hostname}-copy`} type="button">📋 Copy names to update</button>
+								{html`
+									<script>
+										document.getElementById('${hostname}-copy').addEventListener("click", () => {
+												navigator.clipboard.writeText('${updates.filter((u) => u.hostname === hostname).map((u) => u.metadata.ctnNames).join(" ")}');
+											});
+									</script>
+								`}
+						</div>
 					</header>
 					<table>
 						<thead>
@@ -48,6 +60,11 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 						<tbody>
 							{updates
 								.filter((u) => u.hostname === hostname)
+								.sort((a, b) => {
+									if (!a.created) return 1;
+									if (!b.created) return -1;
+									return new Date(b.created).getTime() - new Date(a.created).getTime();
+								})
 								.map((update) => (
 									<tr key={update.id}>
 										<td>{update.status}</td>
@@ -61,7 +78,7 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 											{update.doneAt &&
 												new Date(update.doneAt).toLocaleDateString("fr-FR")}
 										</td>
-										<td>
+										<td className="actions">
 											{update.status === "pending" && (
 												<form
 													action={`/dashboard?id=${update.id}`}
