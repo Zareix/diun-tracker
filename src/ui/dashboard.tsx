@@ -14,7 +14,6 @@ type Props = {
 const DashboardPage = ({ updates, showAll }: Props) => {
 	const hostnames = [...new Set(updates.map((update) => update.hostname))].sort();
 
-
 	return (
 		<Layout title="Dashboard">
 			<header>
@@ -68,7 +67,11 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 								.map((update) => (
 									<tr key={update.id}>
 										<td>{update.status}</td>
-										<td>{update.image}</td>
+										<td>
+											{update.hubLink ? <a href={update.hubLink}>
+												{update.image}
+											</a> : update.image}
+										</td>
 										<td>{update.metadata.ctnNames}</td>
 										<td>
 											{update.created &&
