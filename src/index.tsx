@@ -41,7 +41,7 @@ app
 		} = await c.req.json<DiunWebhookBody>();
 
 		const update: UpdatesRow = await db.transaction(async (trx) => {
-			const [{updates: currentUpdate}] = await trx
+			const currentUpdate = await trx
 				.select()
 				.from(tableUpdates)
 				.leftJoin(tableMetadata,eq(tableMetadata.updateId, tableUpdates.id))
@@ -53,8 +53,8 @@ app
 					))
 				.orderBy(desc(tableUpdates.id))
 				.limit(1)
-			if (currentUpdate) {
-				return currentUpdate
+			if (currentUpdate.length > 0 && !!currentUpdate[0]) {
+				return currentUpdate[0].updates
 			}
 			const [insertedUpdate] = await trx
 				.insert(tableUpdates)
