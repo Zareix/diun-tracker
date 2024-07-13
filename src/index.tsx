@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import DashboardPage from "~/ui/dashboard";
 import { db } from "./db";
@@ -15,7 +15,10 @@ app
 			with: {
 				metadata: true,
 			},
-			where: filter === "pending" || filter === "done" ? eq(tableUpdates.status, filter) : undefined,
+			where:
+				filter === "pending" || filter === "done"
+					? eq(tableUpdates.status, filter)
+					: undefined,
 		});
 		return c.json(allUpdates);
 	})
@@ -44,17 +47,18 @@ app
 			const currentUpdate = await trx
 				.select()
 				.from(tableUpdates)
-				.leftJoin(tableMetadata,eq(tableMetadata.updateId, tableUpdates.id))
+				.leftJoin(tableMetadata, eq(tableMetadata.updateId, tableUpdates.id))
 				.where(
 					and(
-						eq(tableUpdates.hostname, hostname), 
+						eq(tableUpdates.hostname, hostname),
 						eq(tableUpdates.status, "pending"),
 						eq(tableMetadata.ctnNames, ctn_names),
-					))
+					),
+				)
 				.orderBy(desc(tableUpdates.id))
-				.limit(1)
+				.limit(1);
 			if (currentUpdate.length > 0 && !!currentUpdate[0]) {
-				return currentUpdate[0].updates
+				return currentUpdate[0].updates;
 			}
 			const [insertedUpdate] = await trx
 				.insert(tableUpdates)
@@ -92,14 +96,44 @@ app
 		});
 	})
 	.patch("/api/updates", async (c) => {
+		const { containerNames } = await c.req.json<{ containerNames: string[] }>();
+		if (!containerNames || containerNames.length === 0) {
+			await db
+				.update(tableUpdates)
+				.set({
+					status: "done",
+					doneAt: new Date().toISOString(),
+				})
+				.where(eq(tableUpdates.status, "pending"));
+
+			return c.json({
+				status: "ok",
+			});
+		}
+
+		const matchingUpdates = await db.query.tableMetadata.findMany({
+			where: inArray(tableMetadata.ctnNames, containerNames),
+		});
+		if (matchingUpdates.length === 0) {
+			c.status(404);
+			return c.json({
+				message: "No updates found for container_name",
+			});
+		}
 		await db
 			.update(tableUpdates)
 			.set({
 				status: "done",
 				doneAt: new Date().toISOString(),
 			})
-			.where(eq(tableUpdates.status, "pending"));
-
+			.where(
+				and(
+					inArray(
+						tableUpdates.id,
+						matchingUpdates.map((u) => u.updateId),
+					),
+				),
+			);
 		return c.json({
 			status: "ok",
 		});
