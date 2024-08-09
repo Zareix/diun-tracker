@@ -1,4 +1,4 @@
-FROM oven/bun:1.1.8 as builder
+FROM oven/bun:1.1.22 as builder
 
 # ENV NODE_ENV=production
 
@@ -12,7 +12,7 @@ COPY . .
 RUN bun run build
 
 
-FROM oven/bun:1.1.8-slim
+FROM oven/bun:1.1.22-slim
 
 WORKDIR /app
 
