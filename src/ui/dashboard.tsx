@@ -35,11 +35,11 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 							<form action={`/dashboard?hostname=${hostname}`} method="POST">
 								<button type="submit">✅ Set all as done</button>
 							</form>
-							<button id={`${hostname}-copy`} type="button">📋 Copy names to update</button>
+							<button id={`${hostname}-copy`} type="button">📋 Copy update command</button>
 								{html`
 									<script>
 										document.getElementById('${hostname}-copy').addEventListener("click", () => {
-												navigator.clipboard.writeText('${updates.filter((u) => u.hostname === hostname).map((u) => u.metadata.ctnNames).join(" ")}');
+												navigator.clipboard.writeText('docker-updater update --host ${hostname} ${updates.filter((u) => u.hostname === hostname).map((u) => u.metadata.ctnNames).join(" ")}');
 											});
 									</script>
 								`}

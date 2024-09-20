@@ -97,6 +97,7 @@ app
 	})
 	.patch("/api/updates", async (c) => {
 		const { containerNames } = await c.req.json<{ containerNames: string[] }>();
+		// TODO check also hostname
 		if (!containerNames || containerNames.length === 0) {
 			await db
 				.update(tableUpdates)
