@@ -1,10 +1,9 @@
-FROM oven/bun:1.1.8 as builder
-
-# ENV NODE_ENV=production
+FROM oven/bun:1.1.29 as builder
 
 WORKDIR /app
 
 COPY package.json bun.lockb ./
+
 RUN bun install
 
 COPY . .
@@ -12,13 +11,14 @@ COPY . .
 RUN bun run build
 
 
-FROM oven/bun:1.1.8-slim
+FROM oven/bun:1.1.29-slim
 
 WORKDIR /app
 
 COPY --from=builder /app/dist .
 COPY --from=builder /app/drizzle ./drizzle
 COPY package.json bun.lockb ./
+
 RUN bun install 
 
 ENV PORT=3000
