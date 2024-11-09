@@ -27,12 +27,14 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 					</a>
 				</div>
 			</header>
-			{hostnames.map((hostname) => (
+			{ hostnames.length === 0 ?
+				<p>No updates</p>
+			: hostnames.map((hostname) => (
 				<div key={hostname}>
 					<header>
 						<h2>{hostname}</h2>
 						<div>
-							<form action={`/dashboard?hostname=${hostname}`} method="POST">
+							<form action={`/dashboard?hostname=${hostname}`} method="post">
 								<button type="submit">✅ Set all as done</button>
 							</form>
 							<button id={`${hostname}-copy`} type="button">📋 Copy update command</button>
@@ -85,7 +87,7 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 											{update.status === "pending" && (
 												<form
 													action={`/dashboard?id=${update.id}`}
-													method="POST"
+													method="post"
 												>
 													<button type="submit">Set as done</button>
 												</form>
