@@ -10,7 +10,7 @@ export const env = createEnv({
 		DATABASE_URL: z.string(),
 	},
 	runtimeEnv: {
-		DATABASE_URL: process.env["DATABASE_URL"],
 		PORT: process.env["PORT"],
+		DATABASE_URL: process.env["DATABASE_URL"],
 	},
 });

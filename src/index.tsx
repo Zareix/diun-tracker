@@ -1,15 +1,17 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
+import { db } from "~/db";
+import { type UpdatesRow, tableMetadata, tableUpdates } from "~/db/schema";
+import { env } from "~/env";
+import type { DiunWebhookBody } from "~/types";
 import DashboardPage from "~/ui/dashboard";
-import { db } from "./db";
-import { type UpdatesRow, tableMetadata, tableUpdates } from "./db/schema";
-import { env } from "./env";
-import type { DiunWebhookBody } from "./types";
 
 const app = new Hono();
 
 app
 	.get("/api/updates", async (c) => {
+		console.log("GET /api/updates");
+
 		const filter = c.req.query("filter");
 		const allUpdates = await db.query.tableUpdates.findMany({
 			with: {
@@ -42,6 +44,9 @@ app
 				ctn_status,
 			},
 		} = await c.req.json<DiunWebhookBody>();
+		console.log(
+			`POST /api/updates | hostname=${hostname} container=${ctn_names}`,
+		);
 
 		const update: UpdatesRow = await db.transaction(async (trx) => {
 			const currentUpdate = await trx
@@ -97,6 +102,10 @@ app
 	})
 	.patch("/api/updates", async (c) => {
 		const { containerNames } = await c.req.json<{ containerNames: string[] }>();
+		console.log(
+			`PATCH /api/updates | containerNames=[${containerNames.join(",")}]`,
+		);
+
 		// TODO check also hostname
 		if (!containerNames || containerNames.length === 0) {
 			await db
@@ -140,6 +149,8 @@ app
 		});
 	})
 	.get("/dashboard", async (c) => {
+		console.log("GET /dashboard");
+
 		const showAll = c.req.query("showAll") === "true";
 		const allUpdates = await db.query.tableUpdates.findMany({
 			with: {
@@ -151,6 +162,8 @@ app
 		return c.html(<DashboardPage updates={allUpdates} showAll={showAll} />);
 	})
 	.post("/dashboard", async (c) => {
+		console.log("POST /dashboard");
+
 		const showAll = c.req.query("showAll") === "true";
 		const id = c.req.query("id");
 		if (id) {

@@ -1,4 +1,4 @@
-export interface DiunWebhookBody {
+export type DiunWebhookBody = {
 	diun_version: string;
 	hostname: string;
 	status: "new";
@@ -10,9 +10,9 @@ export interface DiunWebhookBody {
 	created: Date;
 	platform: string;
 	metadata: Metadata;
-}
+};
 
-export interface Metadata {
+export type Metadata = {
 	ctn_command: string;
 	ctn_createdat: string;
 	ctn_id: string;
@@ -20,4 +20,4 @@ export interface Metadata {
 	ctn_size: string;
 	ctn_state: string;
 	ctn_status: string;
-}
+};
