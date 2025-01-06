@@ -4,7 +4,7 @@ import { db } from "~/db";
 import { type UpdatesRow, tableMetadata, tableUpdates } from "~/db/schema";
 import { env } from "~/env";
 import * as github from "~/lib/github";
-import type { DiunWebhookBody, PullRequest } from "~/types";
+import type { DiunWebhookBody } from "~/types";
 import DashboardPage from "~/ui/dashboard";
 
 const app = new Hono();
