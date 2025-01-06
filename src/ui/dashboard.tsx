@@ -1,5 +1,7 @@
 import { html } from "hono/html";
 import type { MetadataRow, UpdatesRow } from "~/db/schema";
+import { env } from "~/env";
+import type { PullRequest } from "~/types";
 import { Layout } from "~/ui/layout";
 
 type Props = {
@@ -9,9 +11,47 @@ type Props = {
 			metadata: MetadataRow;
 		}
 	>;
+	pullRequests: PullRequest[];
 };
 
-const DashboardPage = ({ updates, showAll }: Props) => {
+const PullRequestsTab = ({ pullRequests }: { pullRequests: PullRequest[] }) => {
+	if (pullRequests.length === 0) {
+		return <></>;
+	}
+	return html`
+		<h2>Pull Requests</h2>
+		<table>
+			<thead>
+				<tr>
+					<th>Title</th>
+					<th>User</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				${pullRequests.map(
+					(pr) => html`<tr key=${pr.id}>
+					<td>
+						<a href=${`https://github.com/${env.GH_REPO}/pull/${pr.number}`}>
+							${pr.title}
+						</a>
+					</td>
+					<td>${pr.username}</td>
+					<td class="actions">
+						<div>
+							<form action=${`/dashboard?pr=${pr.number}`} method="post">
+								<button type="submit">Merge</button>
+							</form>
+						</div>
+					</td>
+				</tr>`,
+				)}
+			</tbody>
+		</table>
+	`;
+};
+
+const DashboardPage = ({ updates, showAll, pullRequests }: Props) => {
 	const hostnames = [
 		...new Set(updates.map((update) => update.hostname)),
 	].sort();
@@ -29,13 +69,15 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 					</a>
 				</div>
 			</header>
+			<PullRequestsTab pullRequests={pullRequests} />
+			<h2>Diun updates</h2>
 			{hostnames.length === 0 ? (
 				<p>No updates</p>
 			) : (
 				hostnames.map((hostname) => (
 					<div key={hostname}>
 						<header>
-							<h2>{hostname}</h2>
+							<h3>{hostname}</h3>
 							<div>
 								<form action={`/dashboard?hostname=${hostname}`} method="post">
 									<button type="submit">✅ Set all as done</button>
@@ -99,14 +141,16 @@ const DashboardPage = ({ updates, showAll }: Props) => {
 												</td>
 											)}
 											<td className="actions">
-												{update.status === "pending" && (
-													<form
-														action={`/dashboard?id=${update.id}`}
-														method="post"
-													>
-														<button type="submit">Set as done</button>
-													</form>
-												)}
+												<div>
+													{update.status === "pending" && (
+														<form
+															action={`/dashboard?id=${update.id}`}
+															method="post"
+														>
+															<button type="submit">Set as done</button>
+														</form>
+													)}
+												</div>
 											</td>
 										</tr>
 									))}

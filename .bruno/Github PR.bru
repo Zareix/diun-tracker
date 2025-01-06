@@ -1,0 +1,21 @@
+meta {
+  name: Github PR
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://api.github.com/repos/zareix/docker/pulls?state=open
+  body: none
+  auth: none
+}
+
+params:query {
+  state: open
+}
+
+headers {
+  Accept: application/vnd.github+json
+  X-GitHub-Api-Version: 2022-11-28
+  Authorization: Bearer {{ gh_token }}
+}

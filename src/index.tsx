@@ -3,7 +3,8 @@ import { Hono } from "hono";
 import { db } from "~/db";
 import { type UpdatesRow, tableMetadata, tableUpdates } from "~/db/schema";
 import { env } from "~/env";
-import type { DiunWebhookBody } from "~/types";
+import * as github from "~/lib/github";
+import type { DiunWebhookBody, PullRequest } from "~/types";
 import DashboardPage from "~/ui/dashboard";
 
 const app = new Hono();
@@ -159,13 +160,23 @@ app
 			orderBy: [desc(tableUpdates.id)],
 			where: showAll ? undefined : eq(tableUpdates.status, "pending"),
 		});
-		return c.html(<DashboardPage updates={allUpdates} showAll={showAll} />);
+		const pullRequests = await github.getPullRequests();
+		return c.html(
+			<DashboardPage
+				updates={allUpdates}
+				showAll={showAll}
+				pullRequests={pullRequests}
+			/>,
+		);
 	})
 	.post("/dashboard", async (c) => {
 		console.log("POST /dashboard");
 
 		const showAll = c.req.query("showAll") === "true";
 		const id = c.req.query("id");
+		const prId = c.req.query("pr");
+		const hostname = c.req.query("hostname");
+
 		if (id) {
 			await db
 				.update(tableUpdates)
@@ -174,14 +185,9 @@ app
 					doneAt: new Date().toISOString(),
 				})
 				.where(eq(tableUpdates.id, Number.parseInt(id)));
-		} else {
-			const hostname = c.req.query("hostname");
-			if (!hostname) {
-				c.status(400);
-				return c.json({
-					message: "Missing hostname",
-				});
-			}
+		} else if (prId) {
+			await github.mergePullRequest(prId);
+		} else if (hostname) {
 			await db
 				.update(tableUpdates)
 				.set({
@@ -195,6 +201,7 @@ app
 					),
 				);
 		}
+
 		const allUpdates = await db.query.tableUpdates.findMany({
 			with: {
 				metadata: true,
@@ -202,7 +209,14 @@ app
 			orderBy: [desc(tableUpdates.id)],
 			where: showAll ? undefined : eq(tableUpdates.status, "pending"),
 		});
-		return c.html(<DashboardPage updates={allUpdates} showAll={showAll} />);
+		const pullRequests = await github.getPullRequests();
+		return c.html(
+			<DashboardPage
+				updates={allUpdates}
+				showAll={showAll}
+				pullRequests={pullRequests}
+			/>,
+		);
 	});
 
 export default {

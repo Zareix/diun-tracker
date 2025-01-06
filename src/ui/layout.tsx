@@ -38,8 +38,13 @@ export const Layout = (props: PropsWithChildren<{ title: string }>) => {
               margin-top: 1.5rem;
             }
 
-            h1,h2 {
+            h1,h2,h3 {
               margin: 0;
+            }
+            
+            h2 {
+              margin-top: 1rem;
+              margin-bottom: 0.5rem;
             }
 
             header > div {
@@ -50,7 +55,7 @@ export const Layout = (props: PropsWithChildren<{ title: string }>) => {
             table {
               border-collapse: collapse;
               width: 100%;
-              margin-top: 1rem;
+              margin-top: 0.5rem;
             }
 
             th,
@@ -59,12 +64,19 @@ export const Layout = (props: PropsWithChildren<{ title: string }>) => {
               padding: 8px;
             }
 
-            td.actions {
-              text-align: center;
+            td.actions div {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 0.5rem;
             }
 
             tr:nth-child(even) {
               background-color: #f2f2f2;
+            }
+
+            td a button {
+              background-color: #71717a;
             }
           `}</Style>
 				)}
