@@ -82,7 +82,6 @@ export const Layout = (props: PropsWithChildren<{ title: string }>) => {
 				)}
       </head>
       <body style="padding: 1em 2em">
-        <div id="root"></div>
         ${props.children}
       </body>
     </html>`;

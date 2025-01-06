@@ -24,7 +24,7 @@ export const getPullRequests = async (): Promise<PullRequest[]> => {
 	}));
 };
 export const mergePullRequest = async (prNumber: string) => {
-	const res = await fetch(
+	await fetch(
 		`https://api.github.com/repos/${env.GH_REPO}/pulls/${prNumber}/merge `,
 		{
 			method: "PUT",
